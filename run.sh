@@ -15,9 +15,9 @@ hostname; pwd; date
 source .env
 module load anaconda/4.0
 source $CONDA_SOURCE
-conda init
-# eval "$(conda shell.bash hook)"
+eval "$(conda shell.bash hook)"
 conda activate lime-sampling
+export PYTHONPATH="${PYTHONPATH}:$(pwd)"
 
 if [ $# -lt 1 ]; then
   echo "Usage: $0 <script> [arg1] [arg2]..."

@@ -39,7 +39,13 @@ if __name__ == "__main__":
 
     accuracy = 0
 
-    with h5py.File(os.path.join(experiment_dir, "explanations.h5"), "w") as f:
+    os.makedirs(experiment_dir, exist_ok=True)
+    output_path = os.path.join(experiment_dir, "explanations.h5")
+    if os.path.exists(output_path):
+        print(f"Explanations already calculated, saved to {output_path}")
+        exit()
+    
+    with h5py.File(output_path, "w") as f:
         for i, sample in tqdm(enumerate(dataset), total=len(dataset), desc="Explaining model predictions..."):
             text = sample["text"]
 
@@ -54,7 +60,7 @@ if __name__ == "__main__":
             f.create_group(str(i))
             f[str(i)]["label_idx"] = sample["label"]
             f[str(i)]["predicted_label_idx"] = predicted_label_idx
-            f[str(i)]["probabilities"] = probabilities.numpy()
+            f[str(i)]["probabilities"] = probabilities.squeeze().numpy()
             f[str(i)]["token_ids"] = explanation.token_ids
             f[str(i)]["token_scores"] = explanation.token_scores
             f[str(i)]["explanation_fit"] = explanation.explanation_fit

@@ -34,7 +34,7 @@ Create directory within shared group space for storing large files and save it i
 ```
 PROJECT_DIR=/mnt/evafs/groups/mi2lab/<name>/lime-sampling
 mkdir -p $PROJECT_DIR
-echo $PROJECT_DIR > .env
+echo "export PROJECT_DIR=${PROJECT_DIR}" > .env
 ```
 
 

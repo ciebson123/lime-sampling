@@ -57,14 +57,14 @@ if __name__ == "__main__":
 
             assert predicted_label_idx == explanation.label, "Predicted label and explanation label do not match"
 
-            f.create_group(str(i))
-            f[str(i)]["label_idx"] = sample["label"]
-            f[str(i)]["predicted_label_idx"] = predicted_label_idx
-            f[str(i)]["probabilities"] = probabilities.squeeze().numpy()
-            f[str(i)]["token_ids"] = explanation.token_ids
-            f[str(i)]["token_scores"] = explanation.token_scores
-            f[str(i)]["explanation_fit"] = explanation.explanation_fit
-
+            grp = f.create_group(str(i))
+            grp.create_dataset("label_idx", data=sample["label"])
+            grp.create_dataset("predicted_label_idx", data=predicted_label_idx)
+            grp.create_dataset("probabilities", data=probabilities.squeeze().numpy())
+            grp.create_dataset("token_ids", data=explanation.token_ids)
+            grp.create_dataset("token_scores", data=explanation.token_scores)
+            grp.create_dataset("explanation_fit", data=explanation.explanation_fit)
+        
     print(f"Accuracy: {accuracy / len(dataset)}")
     print(f"Explanations saved to {os.path.join(experiment_dir, 'explanations.h5')}")
     print("Done!")

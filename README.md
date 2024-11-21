@@ -41,6 +41,6 @@ echo $PROJECT_DIR > .env
 ## Running the code
 
 ```
-# may require changing arguments in main.py
-sbatch run.sh main.py
+# may require changing arguments in the script
+sbatch run.sh scripts/calculate_local_explanations.py
 ```

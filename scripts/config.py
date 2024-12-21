@@ -1,16 +1,16 @@
-import data
-import models
 from aggregators import norm_lime
+from data import emotion as emotion_data, imdb as imdb_data
+from models import emotion as emotion_models, imdb as imdb_models
 from samplers import el2n_score, entropy_sampler, max_variation_ratio, uniform_sampler
 
 NAME_TO_MODEL_LOADER = {
-    "emotion": models.emotion.load_model,
-    "imdb": models.imdb.load_model,
+    "emotion": emotion_models.load_model,
+    "imdb": imdb_models.load_model,
 }
 
 NAME_TO_DATASET_LOADER = {
-    "emotion": data.emotion.load_dataset,
-    "imdb": data.imdb.load_dataset,
+    "emotion": emotion_data.load_dataset,
+    "imdb": imdb_data.load_dataset,
 }
 
 NAME_TO_SAMPLER = {

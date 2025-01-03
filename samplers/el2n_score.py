@@ -1,15 +1,18 @@
-import numpy as np
 import h5py
+import numpy as np
 
 
 def select_samples(file: h5py.File, num_samples: int, seed: int, **kwargs) -> list:
-    # https://arxiv.org/pdf/2107.07075 max p(y | x) - y
+    # EL2N = Error L2 Norm from https://arxiv.org/pdf/2107.07075, https://openreview.net/pdf?id=1dwXa9vmOI
+    # given as ||p(y | x) - y||_2
     id_with_el2n_score = []
 
     for key, value in file.items():
         probabilities = value["probabilities"][:]
         label_idx = value["label_idx"][()]
-        el2n_score = abs(probabilities[label_idx] - 1)
+        y = np.zeros(probabilities.shape)
+        y[label_idx] = 1
+        el2n_score = np.linalg.norm(probabilities - y, ord=2)
         id_with_el2n_score.append((key, el2n_score))
 
     id_with_el2n_score = sorted(id_with_el2n_score, key=lambda x: x[1], reverse=True)

@@ -29,6 +29,7 @@ def parse_args():
 
 
 def main(args):
+    print(f"Arguments: {vars(args)}")
     set_seed(args.seed)
     device = setup_device()
 

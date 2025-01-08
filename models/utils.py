@@ -9,7 +9,7 @@ from utils import dict_to_device
 
 @torch.no_grad()
 def predict(model, tokenizer, text: str):
-    inputs = tokenizer(text, return_tensors="pt")
+    inputs = tokenizer(text, return_tensors="pt", truncation=True)
     inputs = dict_to_device(inputs, model.device)
     outputs = model(**inputs)
     return torch.softmax(outputs.logits, dim=-1).cpu()
@@ -38,7 +38,7 @@ def predict_batched(
         leave=False,
         disable=not show_progress,
     ):
-        inputs = tokenizer(batch.tolist(), padding="longest", return_tensors="pt", **tokenizer_kwargs)
+        inputs = tokenizer(batch.tolist(), padding=True, return_tensors="pt", **tokenizer_kwargs)
         inputs = dict_to_device(inputs, model.device)
 
         outputs = model(**inputs)

@@ -34,6 +34,8 @@ class LimeExplainer:
     def _forward_fn_token_ids(self, token_ids_texts: list[str]):
         if self.token_masking_strategy == "mask":
             mask_token_id = str(self.tokenizer.mask_token_id)
+        elif self.token_masking_strategy == "pad":
+            mask_token_id = str(self.tokenizer.pad_token_id)
         elif self.token_masking_strategy == "remove":
             mask_token_id = ""
         else:
@@ -66,7 +68,7 @@ class LimeExplainer:
         ).numpy()
 
     def explain(self, text: str) -> ExplainationOutput:
-        encoded_text = self.tokenizer(text, return_tensors="pt", return_special_tokens_mask=True)
+        encoded_text = self.tokenizer(text, return_tensors="pt", return_special_tokens_mask=True, truncation=True)
         special_tokens_mask = encoded_text.pop("special_tokens_mask")
         token_ids = encoded_text["input_ids"][0].tolist()
         tokens = self.tokenizer.convert_ids_to_tokens(token_ids)

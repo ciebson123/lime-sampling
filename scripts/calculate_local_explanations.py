@@ -35,7 +35,7 @@ if __name__ == "__main__":
     dataset, class_names = load_dataset(cache_dir)
     dataset = clip_num_samples(dataset, max_num_samples)
 
-    explainer = LimeExplainer(model, tokenizer, **lime_args)
+    explainer = LimeExplainer(model, tokenizer, device, **lime_args)
 
     accuracy = 0
 
@@ -64,6 +64,7 @@ if __name__ == "__main__":
             grp.create_dataset("token_ids", data=explanation.token_ids)
             grp.create_dataset("token_scores", data=explanation.token_scores)
             grp.create_dataset("explanation_fit", data=explanation.explanation_fit)
+            grp.create_dataset("cls", data=explanation.cls)
         
     print(f"Accuracy: {accuracy / len(dataset)}")
     print(f"Explanations saved to {os.path.join(experiment_dir, 'explanations.h5')}")

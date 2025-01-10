@@ -1,7 +1,7 @@
 from aggregators import norm_lime
 from data import emotion as emotion_data, imdb as imdb_data
 from models import emotion as emotion_models, imdb as imdb_models
-from samplers import el2n_score, entropy_sampler, max_variation_ratio, uniform_sampler
+from samplers import el2n_score, entropy_sampler, max_variation_ratio, uniform_sampler, greedy_mae_sampler
 
 NAME_TO_MODEL_LOADER = {
     "emotion": emotion_models.load_model,
@@ -18,6 +18,7 @@ NAME_TO_SAMPLER = {
     "entropy": entropy_sampler.select_samples,
     "el2n": el2n_score.select_samples,
     "variation_ratio": max_variation_ratio.select_samples,
+    "greedy_mae": greedy_mae_sampler.select_samples,
 }
 
 NAME_TO_AGGREGATOR = {"norm_lime": norm_lime.aggregate_local_explanations}

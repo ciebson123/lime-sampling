@@ -13,6 +13,7 @@ from config import (
 project_dir = os.environ['PROJECT_DIR']
 cache_dir = os.path.join(project_dir, ".cache")
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Calculate global explanation")
     parser.add_argument("--dataset", type=str, help="Dataset to use", default="emotion")
@@ -25,7 +26,23 @@ def parse_args():
         "--aggregator", type=str, help="Aggregator method", default="norm_lime"
     )
 
+    # For greedy, post facto sampler
+
+    parser.add_argument(
+        "--ground_truth_results_path",
+        type=str,
+        help="Path to the ground truth results file",
+        default=None,
+    )
+    parser.add_argument(
+        "--top_k_gt",
+        type=int,
+        help="Top k ground truth results to consider",
+        default=None,
+    )
+
     return parser.parse_args()
+
 
 def main(args):
     print(f"Arguments: {vars(args)}")
@@ -39,9 +56,15 @@ def main(args):
     with h5py.File(args.explanation_file, "r") as f:
         if num_samples == -1:
             num_samples = len(f)
-        
+
         print(f"Sampling {num_samples} local explanations using {args.sampler} method...")
-        samples = sampler(f, num_samples, args.seed)
+        samples = sampler(
+            f,
+            num_samples,
+            args.seed,
+            ground_truth_results_path=args.ground_truth_results_path,
+            top_k_gt=args.top_k_gt,
+        )
 
         print(f"Calculating global explanation using {args.aggregator} method...")
         global_explanation = aggregator(samples, f)

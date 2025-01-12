@@ -4,6 +4,7 @@ import json
 from notebooks.utils import compute_mae, get_top_k_tokens_per_category
 from copy import deepcopy
 from collections import defaultdict
+from transformers import AutoTokenizer
 
 def incremental_norm_lime(scores, num_occurences_class_token, file: h5py.File, new_sample_idx: str):
     grp = file[new_sample_idx]
@@ -12,11 +13,11 @@ def incremental_norm_lime(scores, num_occurences_class_token, file: h5py.File, n
     token_scores = grp["token_scores"][:]
     total_sample_score = np.abs(token_scores).sum()
     for token_id, token_score in zip(token_ids, token_scores):
+        token_id = token_id.item()
         scores[predicted_label_idx][token_id] *= num_occurences_class_token[predicted_label_idx][token_id] 
         scores[predicted_label_idx][token_id] += token_score ** 2 / total_sample_score
         num_occurences_class_token[predicted_label_idx][token_id] += 1
         scores[predicted_label_idx][token_id] /= num_occurences_class_token[predicted_label_idx][token_id]
-        
     return scores, num_occurences_class_token
 
 def un_incremental_norm_lime(scores, num_occurences_class_token, file: h5py.File, new_sample_idx: str):
@@ -26,6 +27,7 @@ def un_incremental_norm_lime(scores, num_occurences_class_token, file: h5py.File
     token_scores = grp["token_scores"][:]
     total_sample_score = np.abs(token_scores).sum()
     for token_id, token_score in zip(token_ids, token_scores):
+        token_id = token_id.item()
         scores[predicted_label_idx][token_id] *= num_occurences_class_token[predicted_label_idx][token_id] 
         scores[predicted_label_idx][token_id] -= token_score ** 2 / total_sample_score
         num_occurences_class_token[predicted_label_idx][token_id] -= 1
@@ -41,11 +43,20 @@ def select_samples(
     seed: int,
     ground_truth_results_path: str,
     top_k_gt: int,
+    class_names: list[str],
+    tokenizer: AutoTokenizer,
     **kwargs
 ) -> list:
 
     gt_result = json.load(open(ground_truth_results_path, "r"))
     gt_result = get_top_k_tokens_per_category(gt_result, top_k_gt)
+    # change the format of gt_result to match the format of scores
+    gt_result = {
+        class_names.index(category): {
+            tokenizer.encode(token)[1]: score for token, score in token_to_score.items()
+        }
+        for category, token_to_score in gt_result.items()
+    }
     used_ids_set = set()
     chosen_ids = []
     scores = defaultdict(lambda: defaultdict(float))
@@ -63,11 +74,10 @@ def select_samples(
             if mae < best_mae:
                 best_mae = mae
                 best_id = key
-                
             scores, num_occurences_class_token = un_incremental_norm_lime(
                     scores, num_occurences_class_token, file, key
                 )
-            
+        
         chosen_ids.append(best_id)
         used_ids_set.add(best_id)
         scores, num_occurences_class_token = incremental_norm_lime(

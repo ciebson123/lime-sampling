@@ -7,10 +7,10 @@ def select_samples(file: h5py.File, num_samples: int, seed: int, **kwargs) -> li
     cls_embeds = []
 
     for key, value in file.items():
-        cls = value["probabilities"][:]
+        cls = value["cls"][:]
         cls_embeds.append(cls)
 
-    cls_embeds = np.array(cls_embeds)
+    cls_embeds = np.array(cls_embeds, dtype=np.float64)
     n = cls_embeds.shape[0]
     d = cls_embeds.shape[1]
     sigma = np.sqrt(2 * d)
@@ -27,4 +27,7 @@ def select_samples(file: h5py.File, num_samples: int, seed: int, **kwargs) -> li
         f"kernel thinning takes {num_samples} out of recommended {len(id_compressed)}."
     )
 
-    return id_compressed[:num_samples]
+    keys = list(file.keys())
+    str_indices = [keys[idx] for idx in id_compressed[:num_samples]]
+
+    return str_indices

@@ -50,7 +50,7 @@ def get_cls_embedding(model, tokenizer, text: str, device: str = 'cpu') -> torch
         # The [CLS] token embedding is the first token's hidden state
         cls_embedding = last_hidden_state[:, 0, :]  # Shape: (batch_size, hidden_size)
 
-    return cls_embedding.squeeze(0)  # Shape: (hidden_size,)
+    return cls_embedding.squeeze(0).cpu().numpy()  # Shape: (hidden_size,)
 
 class LimeExplainer:
     def __init__(

@@ -3,6 +3,7 @@ import json
 import os
 
 import h5py
+from samplers.per_class_sampler_wrapper import wrap_sampler
 from config import (
     NAME_TO_AGGREGATOR,
     NAME_TO_DATASET_LOADER,
@@ -24,6 +25,7 @@ def parse_args():
     parser.add_argument(
         "--aggregator", type=str, help="Aggregator method", default="norm_lime"
     )
+    parser.add_argument("--use_per_class_wrapper", action="store_true", default=False, help="Use per class wrapper")
 
     return parser.parse_args()
 
@@ -33,6 +35,8 @@ def main(args):
     model_loader = NAME_TO_MODEL_LOADER[args.dataset]
 
     sampler = NAME_TO_SAMPLER[args.sampler]
+    if args.use_per_class_wrapper:
+        sampler = wrap_sampler(sampler)
     aggregator = NAME_TO_AGGREGATOR[args.aggregator]
 
     num_samples = args.num_samples
@@ -41,6 +45,8 @@ def main(args):
             num_samples = len(f)
         
         print(f"Sampling {num_samples} local explanations using {args.sampler} method...")
+        if args.use_per_class_wrapper:
+            print(f"Samples will be selected per class.")
         samples = sampler(f, num_samples, args.seed)
 
         print(f"Calculating global explanation using {args.aggregator} method...")

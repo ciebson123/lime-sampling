@@ -13,9 +13,9 @@ def gaussian_kernel(y, X, sigma=1.0):
 def compute_m(n, num_samples):
     current_num_points = n
     m = 0
-    while np.ceil(current_num_points / 2) > num_samples:
+    while np.floor(current_num_points / 2) >= num_samples:
         m += 1
-        current_num_points = np.ceil(current_num_points / 2)
+        current_num_points = np.floor(current_num_points / 2)
     return m
 
 

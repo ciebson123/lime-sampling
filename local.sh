@@ -1,5 +1,5 @@
-dataset=emotion
-num_samples=5000
+dataset=imdb     # imdb
+num_samples=1000    # 1000
 
 for num_features in 10 all; do
     if [ $num_features = "all" ]; then
@@ -12,7 +12,7 @@ for num_features in 10 all; do
         sbatch run.sh scripts/calculate_local_explanations.py \
             --dataset $dataset \
             --experiment_dir "experiments/${dataset}/lime/k_${num_features}-n_${num_samples}-mask_${token_masking_strategy}" \
-            --batch_size 1024 \
+            --batch_size 1000 \
             --lime_num_samples $num_samples \
             --lime_token_masking_strategy $token_masking_strategy \
             $num_features_arg

@@ -14,7 +14,7 @@ for aggregator in norm_lime; do
         --output_file $experiment_dir/global_explanation_full-aggregator_${aggregator}.json
 
     # sampled
-    for num_samples in 7 15 31 62 125 250 500 1000; do 
+    # for num_samples in 7 15 31 62 125 250 500 1000; do 
     for num_samples in 6 12 24 48 97 195 390 781 1562; do 
     # for num_samples in 10 20 50 100 200 500 1000 2000 5000 10000; do 
         for sampler in kernel_thinning uniform entropy el2n variation_ratio; do

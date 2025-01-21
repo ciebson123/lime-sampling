@@ -1,5 +1,5 @@
 dataset=imdb
-lime_num_samples=5000
+lime_num_samples=1000
 source .env
 echo proj_dir=${PROJECT_DIR}
 experiment_dir=${PROJECT_DIR}/experiments/${dataset}/lime/k_all-n_${lime_num_samples}-mask_remove

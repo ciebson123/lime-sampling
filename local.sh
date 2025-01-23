@@ -12,7 +12,7 @@ for num_features in 10 all; do
         sbatch run.sh scripts/calculate_local_explanations.py \
             --dataset $dataset \
             --experiment_dir "experiments/${dataset}/lime/k_${num_features}-n_${num_samples}-mask_${token_masking_strategy}" \
-            --batch_size 1000 \
+            --batch_size 250 \
             --lime_num_samples $num_samples \
             --lime_token_masking_strategy $token_masking_strategy \
             $num_features_arg

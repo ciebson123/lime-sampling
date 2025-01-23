@@ -34,7 +34,7 @@ def select_samples(file: h5py.File, num_samples: int, seed: int, **kwargs) -> li
     kernel = partial(gaussian_kernel, sigma=sigma)
 
     id_compressed = kt.thin(
-        X=cls_embeds, m=m, split_kernel=kernel, swap_kernel=kernel, delta=0.5, seed=seed
+        X=cls_embeds, m=m, split_kernel=kernel, swap_kernel=kernel, delta=0.5, seed=seed, verbose=True
     )
 
     print(

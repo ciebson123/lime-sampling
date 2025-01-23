@@ -1,9 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=lime-sampling
-#SBATCH --account=mi2lab-normal
-#SBATCH --partition=short
+#SBATCH --partition=a100
 #SBATCH --time=1-00:00:00
-#SBATCH --constraint=dgx 
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem-per-cpu=6GB

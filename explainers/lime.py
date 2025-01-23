@@ -68,7 +68,9 @@ class LimeExplainer:
         ).numpy()
 
     def explain(self, text: str) -> ExplainationOutput:
-        encoded_text = self.tokenizer(text, return_tensors="pt", return_special_tokens_mask=True, truncation=True)
+        encoded_text = self.tokenizer(
+            text, return_tensors="pt", return_special_tokens_mask=True, truncation=True, max_length=512
+        )  # NOTE: for BERT max_length=512 but for other models it might be different
         special_tokens_mask = encoded_text.pop("special_tokens_mask")
         token_ids = encoded_text["input_ids"][0].tolist()
         tokens = self.tokenizer.convert_ids_to_tokens(token_ids)

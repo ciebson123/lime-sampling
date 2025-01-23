@@ -9,7 +9,7 @@ from utils import dict_to_device
 
 @torch.no_grad()
 def predict(model, tokenizer, text: str):
-    inputs = tokenizer(text, return_tensors="pt", truncation=True)
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512) # NOTE: for BERT max_length=512 but for other models it might be different
     inputs = dict_to_device(inputs, model.device)
     outputs = model(**inputs)
     return torch.softmax(outputs.logits, dim=-1).cpu()

@@ -4,3 +4,5 @@ __pycache__/
 storage/
 .cache/
 experiments/
+.env
+jm/

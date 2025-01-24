@@ -1,20 +1,63 @@
 from collections import namedtuple
 
 import numpy as np
+import torch
 from lime.lime_text import LimeTextExplainer
 
 from models.utils import predict_batched
 
 ExplainationOutput = namedtuple(
-    "ExplainationOutput", ["tokens", "token_ids", "token_scores", "label", "explanation_fit"]
+    "ExplainationOutput", ["tokens", "token_ids", "token_scores", "label", "explanation_fit", "cls"]
 )
 
+def get_cls_embedding(model, tokenizer, text: str, device: str = 'cpu') -> torch.Tensor:
+    """
+    Extracts the [CLS] token embedding from the input text.
+
+    Args:
+        model: The loaded sequence classification model.
+        tokenizer: The loaded tokenizer.
+        text (str): Input text to encode.
+        device (str): Device to perform computation on ('cpu' or 'cuda').
+
+    Returns:
+        torch.Tensor: The [CLS] embedding with shape (hidden_size,).
+    """
+    model.to(device)
+    model.eval()  # Set model to evaluation mode
+
+    with torch.no_grad():
+        # Tokenize the input text
+        encoding = tokenizer(
+            text,
+            padding=True,
+            truncation=True,
+            return_tensors='pt'
+        )
+        input_ids = encoding['input_ids'].to(device)
+        attention_mask = encoding['attention_mask'].to(device)
+
+        # Pass through the base model (distilbert) to get hidden states
+        outputs = model.distilbert(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            return_dict=True
+        )
+
+        # Extract the last hidden state
+        last_hidden_state = outputs.last_hidden_state  # Shape: (batch_size, sequence_length, hidden_size)
+
+        # The [CLS] token embedding is the first token's hidden state
+        cls_embedding = last_hidden_state[:, 0, :]  # Shape: (batch_size, hidden_size)
+
+    return cls_embedding.squeeze(0).cpu().numpy()  # Shape: (hidden_size,)
 
 class LimeExplainer:
     def __init__(
         self,
         model,
         tokenizer,
+        device,
         num_features: int = None,
         num_samples: int = 1000,
         batch_size: int = 64,
@@ -23,6 +66,7 @@ class LimeExplainer:
     ):
         self.model = model
         self.tokenizer = tokenizer
+        self.device = device
 
         self._explainer = LimeTextExplainer(bow=False)
         self.num_features = num_features
@@ -74,6 +118,7 @@ class LimeExplainer:
         special_tokens_mask = encoded_text.pop("special_tokens_mask")
         token_ids = encoded_text["input_ids"][0].tolist()
         tokens = self.tokenizer.convert_ids_to_tokens(token_ids)
+        cls_embeddings = get_cls_embedding(self.model, self.tokenizer, text, device=self.device)
 
         explanation = self._explainer.explain_instance(
             " ".join([str(i) for i in token_ids]),
@@ -96,4 +141,5 @@ class LimeExplainer:
             token_scores,
             explanation.top_labels[0],
             explanation.score,
+            cls_embeddings,
         )

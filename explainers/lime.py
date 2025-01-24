@@ -5,6 +5,7 @@ import torch
 from lime.lime_text import LimeTextExplainer
 
 from models.utils import predict_batched
+from transformers.models.deberta_v2.modeling_deberta_v2 import DebertaV2ForSequenceClassification
 
 ExplainationOutput = namedtuple(
     "ExplainationOutput", ["tokens", "token_ids", "token_scores", "label", "explanation_fit", "cls"]
@@ -38,11 +39,18 @@ def get_cls_embedding(model, tokenizer, text: str, device: str = 'cpu') -> torch
         attention_mask = encoding['attention_mask'].to(device)
 
         # Pass through the base model (distilbert) to get hidden states
-        outputs = model.distilbert(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            return_dict=True
-        )
+        if isinstance(model, DebertaV2ForSequenceClassification):
+            outputs = model.deberta(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                return_dict=True
+            )
+        else:
+            outputs = model.distilbert(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                return_dict=True
+            )
 
         # Extract the last hidden state
         last_hidden_state = outputs.last_hidden_state  # Shape: (batch_size, sequence_length, hidden_size)

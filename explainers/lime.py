@@ -33,7 +33,8 @@ def get_cls_embedding(model, tokenizer, text: str, device: str = 'cpu') -> torch
             text,
             padding=True,
             truncation=True,
-            return_tensors='pt'
+            return_tensors='pt',
+            max_length=512  
         )
         input_ids = encoding['input_ids'].to(device)
         attention_mask = encoding['attention_mask'].to(device)

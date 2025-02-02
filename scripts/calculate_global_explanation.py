@@ -30,10 +30,14 @@ def parse_args():
 def main(args):
     print(f"Arguments: {vars(args)}")
     dataset_loader = NAME_TO_DATASET_LOADER[args.dataset]
+    _, class_names = dataset_loader(cache_dir)
+    
     model_loader = NAME_TO_MODEL_LOADER[args.dataset]
+    _, tokenizer = model_loader(cache_dir)
 
     sampler = NAME_TO_SAMPLER[args.sampler]
     aggregator = NAME_TO_AGGREGATOR[args.aggregator]
+    sampler_kwargs = {"num_classes": len(class_names)} if args.sampler == "gmm" else {}
 
     num_samples = args.num_samples
     with h5py.File(args.explanation_file, "r") as f:
@@ -41,13 +45,11 @@ def main(args):
             num_samples = len(f)
         
         print(f"Sampling {num_samples} local explanations using {args.sampler} method...")
-        samples = sampler(f, num_samples, args.seed)
+        samples = sampler(f, num_samples, args.seed, **sampler_kwargs)
 
         print(f"Calculating global explanation using {args.aggregator} method...")
         global_explanation = aggregator(samples, f)
 
-        _, class_names = dataset_loader(cache_dir)
-        _, tokenizer = model_loader(cache_dir)
         global_explanation = {
             class_names[class_idx]: {
                 tokenizer.decode([token_id]): token_score
